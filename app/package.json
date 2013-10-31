@@ -1,0 +1,8 @@
+{
+	"name": "Notorious",
+	"main": "app://notorious/src/views/index.html",
+	"window": {
+		"toolbar": false,
+		"show": false
+	}
+}
