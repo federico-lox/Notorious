@@ -23,10 +23,16 @@
 	</head>
 	<body>
 		<pre id="editor"></pre>
-		<script src="app://notorious/lib/ace/ace.js"
-			type="text/javascript" charset="utf-8"></script>
+		<script src="app://notorious/lib/ace/ace.js"></script>
+		<script src="app://notorious/lib/ace/ext-language_tools.js"></script>
 		<script>
-			function getUserHome() {
+			/*
+			 * Get the path to the user's home folder
+			 * independently of the platform
+			 *
+			 * @return string The full path to the home folder
+			 */
+			function getHomePath() {
 				return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 			}
 
@@ -35,9 +41,19 @@
 				editor.focus();
 			});
 
+			// Enable extensions
+			ace.require("ace/ext/language_tools");
+
+			// Initialize editor
 			var editor = ace.edit("editor");
 			editor.setTheme("ace/theme/twilight");
 			editor.getSession().setMode("ace/mode/javascript");
+
+			// Setup
+			editor.setOptions({
+				enableBasicAutocompletion: true,
+				enableSnippets: true
+			});
 		</script>
 	</body>
 </html>
