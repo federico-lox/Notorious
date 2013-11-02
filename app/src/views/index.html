@@ -24,6 +24,8 @@
 	<body>
 		<pre id="editor"></pre>
 		<script src="app://notorious/lib/ace/ace.js"></script>
+		<script src="app://notorious/lib/ace/theme-cobalt.js"></script>
+		<script src="app://notorious/lib/ace/ext-split.js"></script>
 		<script src="app://notorious/lib/ace/ext-language_tools.js"></script>
 		<script>
 			/*
@@ -36,23 +38,37 @@
 				return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 			}
 
-			window.addEventListener('load', function() {
-				require('nw.gui').Window.get().show();
-				editor.focus();
-			});
-
-			// Enable extensions
-			ace.require("ace/ext/language_tools");
+			// Load extensions and themes
+			var language_tools = ace.require("ace/ext/language_tools"),
+				split = ace.require("ace/ext/split"),
+				theme = ace.require("ace/theme/cobalt");
 
 			// Initialize editor
-			var editor = ace.edit("editor");
-			editor.setTheme("ace/theme/twilight");
-			editor.getSession().setMode("ace/mode/javascript");
+			var splits = new split.Split(document.getElementById('editor'), theme, 1),
+				editor = splits.getCurrentEditor();
 
 			// Setup
-			editor.setOptions({
-				enableBasicAutocompletion: true,
-				enableSnippets: true
+			splits.forEach(function (editor) {
+				editor.getSession().setMode("ace/mode/javascript");
+				editor.setOptions({
+					enableBasicAutocompletion: true,
+					enableSnippets: true
+				});
+			});
+
+			// Forcing the session will keep the splits in sync
+			// TODO: detect the document being opened in a split
+			// and if it's already opened force the session
+			// var session = editor.getSession();
+			// splits.setSession(session, 1);
+
+			window.addEventListener('resize', function (){
+				splits.resize();
+			});
+
+			window.addEventListener('load', function() {
+				require('nw.gui').Window.get().show();
+				splits.focus();
 			});
 		</script>
 	</body>
