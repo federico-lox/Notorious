@@ -39,9 +39,17 @@
 			}
 
 			// Load extensions and themes
-			var language_tools = ace.require("ace/ext/language_tools"),
-				split = ace.require("ace/ext/split"),
-				theme = ace.require("ace/theme/cobalt");
+			var language_tools = ace.require('ace/ext/language_tools'),
+				split = ace.require('ace/ext/split'),
+				theme = ace.require('ace/theme/cobalt');
+
+			// Default settings
+			var config = ace.require('ace/config');
+
+			config.setDefaultValues('editor', {
+				enableBasicAutocompletion: true,
+				enableSnippets: true
+			});
 
 			// Initialize editor
 			var splits = new split.Split(document.getElementById('editor'), theme, 1),
@@ -49,11 +57,7 @@
 
 			// Setup
 			splits.forEach(function (editor) {
-				editor.getSession().setMode("ace/mode/javascript");
-				editor.setOptions({
-					enableBasicAutocompletion: true,
-					enableSnippets: true
-				});
+				editor.getSession().setMode('ace/mode/javascript');
 			});
 
 			// Forcing the session will keep the splits in sync
