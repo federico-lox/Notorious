@@ -1,0 +1,9 @@
+- [ ] Go back to modil.js v2
+  - [ ] Rework optional deps
+  - [ ] Rework require/define declaration when names are already taken
+  - [ ] Unit tests
+  - [ ] Documentation
+- [ ] Pull in modil.js
+  - [ ] Create wrappers for Ace and Node-webkit globals
+- [ ] Commands
+  - [ ] Use Ace's CommandManager as the backend
