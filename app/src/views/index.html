@@ -15,27 +15,114 @@
 				margin: 0;
 				position: absolute;
 				top: 0;
-				bottom: 0;
+				bottom: 25px;
 				left: 0;
 				right: 0;
+			}
+
+			#command-line {
+				display: block;
+				position: absolute;
+				margin: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				height: 15px;
 			}
 		</style>
 	</head>
 	<body>
 		<pre id="editor"></pre>
+		<input type="text" id="command-line"/>
 		<script src="app://notorious/lib/ace/ace.js"></script>
 		<script src="app://notorious/lib/ace/theme-cobalt.js"></script>
 		<script src="app://notorious/lib/ace/ext-split.js"></script>
 		<script src="app://notorious/lib/ace/ext-language_tools.js"></script>
 		<script>
+				// Constants
+			var KEY_TAB = 9,
+				KEY_ENTER = 13,
+				KEY_REV_APOS = 192,
+				// Globals
+				cwd = process.cwd(),
+				commandLine = document.getElementById('command-line'),
+				fs = require('fs'),
+				gui = require('nw.gui'),
+				nwWindow = gui.Window.get(),
+				commands = {
+					'help': function() {
+						console.log(Object.keys(this));
+					},
+					'devtools': function() {
+						nwWindow.showDevTools();
+					},
+					'open': {
+						run: function (path) {
+							if (path && path != '') {
+								openFile(resolvePath(path));
+							}
+						},
+						query: function (path) {
+							var stats;
+
+							try {
+								stats = fs.lstatSync(path);
+							} catch (e) {}
+
+							if (stats && stats.isDirectory()) {
+								console.log('TODO: list dir contents');
+								return [];
+							} else if (!stats || (stats && !stats.isFile())) {
+								return [resolvePath(path)];
+							}
+						}
+					}
+				};
+
 			/*
 			 * Get the path to the user's home folder
 			 * independently of the platform
 			 *
-			 * @return string The full path to the home folder
+			 * @return {String} The full path to the home folder
 			 */
 			function getHomePath() {
 				return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+			}
+
+			/**
+			 * Resolves a path to its absolute representation
+			 *
+			 * @param {String} The path to resolve
+			 *
+			 * @return {String} The resolved path
+			 */
+			function resolvePath(path) {
+				var p = require('path'),
+					parts = path.split('/');
+
+				if (parts[0] == '~') {
+					parts[0] = getHomePath();
+				} else if (parts[0] == '') {
+					parts[0] = p.sep;
+				}
+
+				return p.resolve(p.join.apply(null, parts));
+			}
+
+			/**
+			 * Opens a file in a new session
+			 *
+			 * @param {String} The path to the file to open
+			 */
+			function openFile(path) {
+				fs.readFile(path, function (err, data) {
+					if (err) {
+						alert("Read error: " + err);
+					} else {
+						editor.setSession(ace.createEditSession(String(data)));
+						editor.focus();
+					}
+				});
 			}
 
 			// Load extensions and themes
@@ -48,7 +135,8 @@
 
 			config.setDefaultValues('editor', {
 				enableBasicAutocompletion: true,
-				enableSnippets: true
+				enableSnippets: true,
+				cursorStyle: 'smooth'
 			});
 
 			// Initialize editor
@@ -66,13 +154,53 @@
 			// var session = editor.getSession();
 			// splits.setSession(session, 1);
 
+			// Commandline
+			commandLine.addEventListener('keydown', function (ev) {
+				var key = ev.which,
+					target = ev.target,
+					value = ev.target.value.trim(),
+					command,
+					params,
+					parts,
+					run,
+					query;
+
+				if (key == KEY_TAB || key == KEY_ENTER) {
+					ev.preventDefault();
+
+					if (value) {
+						parts = value.split(' ');
+						command = commands[parts[0]];
+						params = parts.slice(1);
+					}
+				}
+
+				if (command) {
+					run = (command instanceof Function) ? command : command.run;
+					query = command.query;
+
+					if (key == KEY_TAB && query) {
+console.log(query.apply(commands, params));
+					} else if (key == KEY_ENTER && run) {
+						run.apply(commands, params);
+						target.value = '';
+					}
+				}
+			});
+
 			window.addEventListener('resize', function (){
 				splits.resize();
 			});
 
-			window.addEventListener('load', function() {
-				require('nw.gui').Window.get().show();
+			window.addEventListener('load', function () {
+				nwWindow.show();
 				splits.focus();
+			});
+
+			window.addEventListener('keydown', function (ev) {
+				if (ev.which == KEY_REV_APOS && ev.ctrlKey) {
+					commandLine.focus();
+				}
 			});
 		</script>
 	</body>
