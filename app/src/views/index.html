@@ -120,6 +120,7 @@
 						alert("Read error: " + err);
 					} else {
 						editor.setSession(ace.createEditSession(String(data)));
+						nwWindow.title = path;
 						editor.focus();
 					}
 				});
@@ -193,6 +194,9 @@ console.log(query.apply(commands, params));
 			});
 
 			window.addEventListener('load', function () {
+				var app = gui.App;
+
+				nwWindow.title = app.manifest.name + " v" + app.manifest.version;
 				nwWindow.show();
 				splits.focus();
 			});

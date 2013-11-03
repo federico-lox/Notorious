@@ -1,8 +1,10 @@
 {
 	"name": "Notorious",
+	"version": "0.0.1",
 	"main": "app://notorious/src/views/index.html",
 	"window": {
 		"toolbar": false,
-		"show": false
+		"show": false,
+		"icon": "logo.png"
 	}
 }
