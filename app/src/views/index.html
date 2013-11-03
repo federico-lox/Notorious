@@ -8,34 +8,48 @@
 			}
 
 			body {
+				background-color: #2C3844;
 				overflow: hidden;
 			}
 
 			#editor {
+				bottom: 0;
+				left: 0;
 				margin: 0;
 				position: absolute;
-				top: 0;
-				bottom: 25px;
-				left: 0;
 				right: 0;
+				top: 25px;
 			}
 
 			#command-line {
+				background-color: #002B36;
+				border: none;
+				color: #FFFFFF;
 				display: block;
-				position: absolute;
-				margin: 0;
+				font-size: 14px;
 				left: 0;
+				margin: 0;
+				outline: none;
+				padding: 4px;
+				position: absolute;
 				right: 0;
-				bottom: 0;
-				height: 15px;
+				top: 0;
+			}
+
+			#command-line:focus {
+				background-color: #268BD2;
+			}
+
+			#command-line::-webkit-input-placeholder{
+				color: #FDF6E3;
 			}
 		</style>
 	</head>
 	<body>
 		<pre id="editor"></pre>
-		<input type="text" id="command-line"/>
+		<input type="text" id="command-line" placeholder="Untitled"/>
 		<script src="app://notorious/lib/ace/ace.js"></script>
-		<script src="app://notorious/lib/ace/theme-cobalt.js"></script>
+		<script src="app://notorious/lib/ace/theme-solarized_light.js"></script>
 		<script src="app://notorious/lib/ace/ext-split.js"></script>
 		<script src="app://notorious/lib/ace/ext-language_tools.js"></script>
 		<script>
@@ -76,6 +90,16 @@
 								return [resolvePath(path)];
 							}
 						}
+					},
+					'read': function () {
+						editor.setReadOnly(true);
+						editor.setShowPrintMargin(false);
+						editor.renderer.setShowGutter(false);
+					},
+					'edit': function () {
+						editor.setReadOnly(false);
+						editor.setShowPrintMargin(true);
+						editor.renderer.setShowGutter(true);
 					}
 				};
 
@@ -120,7 +144,7 @@
 						alert("Read error: " + err);
 					} else {
 						editor.setSession(ace.createEditSession(String(data)));
-						nwWindow.title = path;
+						commandLine.placeholder = path
 						editor.focus();
 					}
 				});
@@ -129,7 +153,7 @@
 			// Load extensions and themes
 			var language_tools = ace.require('ace/ext/language_tools'),
 				split = ace.require('ace/ext/split'),
-				theme = ace.require('ace/theme/cobalt');
+				theme = ace.require('ace/theme/solarized_light');
 
 			// Default settings
 			var config = ace.require('ace/config');
@@ -156,6 +180,10 @@
 			// splits.setSession(session, 1);
 
 			// Commandline
+			commandLine.addEventListener('blur', function (ev){
+				ev.target.value = '';
+			});
+
 			commandLine.addEventListener('keydown', function (ev) {
 				var key = ev.which,
 					target = ev.target,
@@ -185,6 +213,7 @@ console.log(query.apply(commands, params));
 					} else if (key == KEY_ENTER && run) {
 						run.apply(commands, params);
 						target.value = '';
+						editor.focus();
 					}
 				}
 			});
