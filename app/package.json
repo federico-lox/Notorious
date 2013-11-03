@@ -5,6 +5,6 @@
 	"window": {
 		"toolbar": false,
 		"show": false,
-		"icon": "logo.png"
+		"icon": "assets/logo.png"
 	}
 }
