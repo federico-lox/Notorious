@@ -169,6 +169,8 @@
 				editor = splits.getCurrentEditor();
 
 			// Setup
+			editor.renderer.setScrollMargin(5,5,5,5);
+
 			splits.forEach(function (editor) {
 				editor.getSession().setMode('ace/mode/javascript');
 			});
